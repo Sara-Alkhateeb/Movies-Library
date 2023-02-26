@@ -4,7 +4,7 @@
 **Author Name**: Sara Alkhateeb
 
 ## WRRC
-![wrrc](./wrrc.jpg)
+![wrrc](./moviesCargo%20(1).jpg)
 
 ## Overview
 This project is a movie library application that allows users to browse and search for movies, as well as view details about each movie such as the title, release year, and synopsis.
@@ -21,5 +21,5 @@ To build and run this app on your own machine, follow these steps:
 1. Browse movies by genre, release year, or title
 2. Search for movies by title or keyword
 3. View details about each movie, including the title, release year, and synopsis
-4. Add movies to a favorites list for easy access later
-5. Mark movies as watched or unwatched
+4. Trending list movies
+5. Populer and upcoming movies collection 
