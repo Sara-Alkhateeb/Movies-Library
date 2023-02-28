@@ -9,13 +9,14 @@ const server = express();
 const allData = require('./Movie Data/data.json');
 // console.log(allData);
 
-server.use(cors());
-
 const axios = require('axios');
-// explain this more:????
-// roaa said that .secret not standered .env is standered to put it inside the host ?
 require('dotenv').config();
+const pg =require('pg');
 
+const client = new pg.Client(process.env.dbURL);
+// console.log(client);
+server.use(cors());
+server.use(express.json());
 const PORT = 3000;
 
 
@@ -28,9 +29,6 @@ function moviesStorge(id,title, posterPath,releaseDate, overview) {
 }
 
 
-const APIKey = process.env.APIKey;
-console.log(APIKey)
-
 
 server.get('/', homeHandler)
 server.get('/favorite', favorite)
@@ -38,6 +36,9 @@ server.get('/trending', trending)
 server.get('/search', search)
 server.get('/upcoming', upComing)
 server.get('/popular', popular)
+server.get('/recommendations', recommendations)
+server.get('/getMovies',getFavmoviesHandler)
+server.post('/addMovie',addFavmoviesHandler)
 server.get('*', defaultpages)
 server.use(errorHandler)
 
@@ -55,16 +56,29 @@ function defaultpages(req, res) {
     res.status(404).send('"status": 404 page not found error!');
 }
 
-function errorHandler(erorr, req, res) {
-    const err = {
-        status: 500,
-        massage: erorr
+function recommendations(req, res) {
+    try {
+
+
+        const url = `https://api.themoviedb.org/3/movie/{movie_id}/recommendations?api_key=${APIKey}&language=en-US&page=1`;
+        axios.get(url)
+            .then((moviesList) => {
+                // console.log(result);
+                let mapResult = moviesList.data.results.map((item) => {
+                    let eachMovie = new moviesStorge(item.id, item.title, item.release_date, item.poster_path, item.overview);
+                    return eachMovie;
+                })
+                res.send(mapResult);
+            })
+            .catch((err) => {
+                console.log("sorry", err);
+                res.status(500).send(err);
+            })
     }
-    res.status(500).send(err);
+    catch (erorr) {
+        errorHandler(error, req, res);
+    }
 }
-
-
-
 
 
 function trending(req, res) {
@@ -86,7 +100,7 @@ function trending(req, res) {
                 res.status(500).send(err);
             })
     }
-    catch (erorr) {
+    catch (error) {
         errorHandler(error, req, res);
     }
 }
@@ -115,8 +129,6 @@ function search(req, res) {
         errorHandler(error, req, res);
     }
 }
-
-
 
 function upComing(req, res) {
     try {
@@ -166,8 +178,51 @@ function popular(req, res) {
     }
 }
 
+function getFavmoviesHandler(req,res) {
+    const sql = `SELECT * FROM favmovies`;
+    client.query(sql)
+    .then((data)=>{
+        res.send(data.rows);
+    })
+    .catch((err)=>{
+        errorHandler(err,req,res);
+    })
+}
 
+function addFavmoviesHandler(req,res) {
+    const moviedetails = req.body; //by default we cant see the body content
+    console.log(moviedetails);
 
-server.listen(PORT, () => {
-    console.log(`listening on ${PORT} : I am ready`);
+    const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview) VALUES ($1,$2,$3,$4) RETURNING *;`
+    const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview];
+  
+    console.log(sql);
+
+    client.query(sql,values)
+    .then((data) => {
+        res.send("your data was added !");
+    })
+        .catch((error) => {
+            // console.log(error);
+            errorHandler(error, req, res);
+        });
+}
+
+function errorHandler(error, req, res) {
+    const err = {
+        status: 500,
+        massage: error
+    }
+    res.status(500).send(err);
+}
+
+client.connect()
+.then(()=>{
+    server.listen(PORT, () => {
+        console.log(`listening on ${PORT} : I am ready`);
+    })
+})
+.catch((err) => {
+    console.log("sorry", err);
+    res.status(500).send(err);
 })
