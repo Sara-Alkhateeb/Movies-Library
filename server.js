@@ -11,7 +11,7 @@ const allData = require('./Movie Data/data.json');
 
 const axios = require('axios');
 require('dotenv').config();
-const pg =require('pg');
+const pg = require('pg');
 
 const client = new pg.Client(process.env.dbURL);
 // console.log(client);
@@ -20,7 +20,7 @@ server.use(express.json());
 const PORT = 3000;
 
 
-function moviesStorge(id,title, posterPath,releaseDate, overview) {
+function moviesStorge(id, title, posterPath, releaseDate, overview) {
     this.id = id;
     this.title = title;
     this.releaseDate = releaseDate;
@@ -37,10 +37,14 @@ server.get('/search', search)
 server.get('/upcoming', upComing)
 server.get('/popular', popular)
 server.get('/recommendations', recommendations)
-server.get('/getMovies',getFavmoviesHandler)
-server.post('/addMovie',addFavmoviesHandler)
+server.get('/getMovies', getFavmoviesHandler)
+server.get('/getMovieById/:id', getmovieId)
+server.post('/addMovie', addFavmoviesHandler)
+server.delete('/delete/:id', deleteFavRecipe)
+server.put('/update/:id', updateFavRecipe)
 server.get('*', defaultpages)
 server.use(errorHandler)
+
 
 
 function homeHandler(req, res) {
@@ -114,7 +118,7 @@ function search(req, res) {
         axios.get(url)
             .then((moviesSearch) => {
                 // console.log(result);
-                let mapSearch= moviesSearch.data.results.map((item) => {
+                let mapSearch = moviesSearch.data.results.map((item) => {
                     let singleMovie = new moviesStorge(item.id, item.title, item.release_date, item.poster_path, item.overview);
                     return singleMovie;
                 })
@@ -164,7 +168,7 @@ function popular(req, res) {
                 // console.log(result);
                 let mapPopular = popularMovies.data.results.map((item) => {
                     let movieList = new moviesStorge(item.id, item.title, item.release_date, item.poster_path, item.overview);
-                    return movieList ;
+                    return movieList;
                 })
                 res.send(mapPopular);
             })
@@ -178,30 +182,30 @@ function popular(req, res) {
     }
 }
 
-function getFavmoviesHandler(req,res) {
+function getFavmoviesHandler(req, res) {
     const sql = `SELECT * FROM favmovies`;
     client.query(sql)
-    .then((data)=>{
-        res.send(data.rows);
-    })
-    .catch((err)=>{
-        errorHandler(err,req,res);
-    })
+        .then((data) => {
+            res.send(data.rows);
+        })
+        .catch((err) => {
+            errorHandler(err, req, res);
+        })
 }
 
-function addFavmoviesHandler(req,res) {
+function addFavmoviesHandler(req, res) {
     const moviedetails = req.body; //by default we cant see the body content
     console.log(moviedetails);
 
     const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview) VALUES ($1,$2,$3,$4) RETURNING *;`
     const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview];
-  
+
     console.log(sql);
 
-    client.query(sql,values)
-    .then((data) => {
-        res.send("your data was added !");
-    })
+    client.query(sql, values)
+        .then((data) => {
+            res.send("your data was added !");
+        })
         .catch((error) => {
             // console.log(error);
             errorHandler(error, req, res);
@@ -216,13 +220,54 @@ function errorHandler(error, req, res) {
     res.status(500).send(err);
 }
 
+
+function deleteFavRecipe(req, res) {
+    const id = req.params.id;
+    const sql = `DELETE FROM favMovies WHERE id=${id}`;
+    client.query(sql)
+        .then((data) => {
+            res.status(204).json({});
+        })
+        .catch((err) => {
+            errorHandler(err, req, res);
+        })
+}
+
+
+function updateFavRecipe(req, res) {
+    const id = req.params.id;
+    console.log(id);
+    console.log(req.body);
+    const sql = `UPDATE favMovies SET title=$1, releaseDate=$2, posterPath=$3, overview=$4 WHERE id=${id} RETURNING *`;
+    const values = [req.body.title, req.body.releaseDate, req.body.posterPath, req.body.overview];
+    client.query(sql, values)
+        .then((data) => {
+            res.status(200).send("data updated");
+        })
+        .catch((err) => {
+            errorHandler(err, req, res);
+        })
+}
+
+function getmovieId(req, res) {
+    const id = req.params.id;
+    const sql = `SELECT * FROM favMovies WHERE id=${id}`;
+    client.query(sql)
+        .then((data) => {
+            res.status(200).send(data.rows);
+        })
+        .catch((err) => {
+            errorHandler(err, req, res);
+        })
+}
+
 client.connect()
-.then(()=>{
-    server.listen(PORT, () => {
-        console.log(`listening on ${PORT} : I am ready`);
+    .then(() => {
+        server.listen(PORT, () => {
+            console.log(`listening on ${PORT} : I am ready`);
+        })
     })
-})
-.catch((err) => {
-    console.log("sorry", err);
-    res.status(500).send(err);
-})
+    .catch((err) => {
+        console.log("sorry", err);
+        // res.status(500).send(err);
+    })
