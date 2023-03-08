@@ -18,7 +18,7 @@ const client = new pg.Client(process.env.dbURL);
 server.use(cors());
 server.use(express.json());
 const PORT = process.env.PORT || 3000 ;
-
+const APIKey = process.env.APIKey;
 
 function moviesStorge(id, title, posterPath, releaseDate, overview) {
     this.id = id;
