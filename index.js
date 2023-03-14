@@ -17,7 +17,7 @@ const client = new pg.Client(process.env.dbURL);
 // console.log(client);
 server.use(cors());
 server.use(express.json());
-const PORT = process.env.PORT || 3000 ;
+const PORT = process.env.PORT || 3002 ;
 const APIKey = process.env.APIKey;
 
 function moviesStorge(id, title, posterPath, releaseDate, overview) {
@@ -197,8 +197,8 @@ function addFavmoviesHandler(req, res) {
     const moviedetails = req.body; //by default we cant see the body content
     console.log(moviedetails);
 
-    const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview) VALUES ($1,$2,$3,$4) RETURNING *;`
-    const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview];
+    const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview, Comment) VALUES ($1,$2,$3,$4,$5) RETURNING *;`
+    const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview, moviedetails.Comment];
 
     console.log(sql);
 
