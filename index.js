@@ -40,8 +40,8 @@ server.get('/recommendations', recommendations)
 server.get('/getMovies', getFavmoviesHandler)
 server.get('/getMovieById/:id', getmovieId)
 server.post('/addMovie', addFavmoviesHandler)
-server.delete('/delete/:id', deleteFavRecipe)
-server.put('/update/:id', updateFavRecipe)
+server.delete('/delete/:id', deleteFavMovie)
+server.put('/update/:id', updateFavMovie)
 server.get('*', defaultpages)
 server.use(errorHandler)
 
@@ -221,7 +221,7 @@ function errorHandler(error, req, res) {
 }
 
 
-function deleteFavRecipe(req, res) {
+function deleteFavMovie(req, res) {
     const id = req.params.id;
     const sql = `DELETE FROM favMovies WHERE id=${id}`;
     client.query(sql)
@@ -234,7 +234,7 @@ function deleteFavRecipe(req, res) {
 }
 
 
-function updateFavRecipe(req, res) {
+function updateFavMovie(req, res) {
     const id = req.params.id;
     console.log(id);
     console.log(req.body);
