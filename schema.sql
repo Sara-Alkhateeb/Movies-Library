@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS favMovies(
     releaseDate VARCHAR(255),
     posterPath VARCHAR(500),
     overview VARCHAR(10000),
-    Comment VARCHAR(10000)
+    comment VARCHAR(10000)
 );
