@@ -197,8 +197,8 @@ function addFavmoviesHandler(req, res) {
     const moviedetails = req.body; //by default we cant see the body content
     console.log(moviedetails);
 
-    const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview, Comment) VALUES ($1,$2,$3,$4,$5) RETURNING *;`
-    const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview, moviedetails.Comment];
+    const sql = `INSERT INTO favmovies (title, posterPath,releaseDate, overview, comment) VALUES ($1,$2,$3,$4,$5) RETURNING *;`
+    const values = [moviedetails.title, moviedetails.posterPath, moviedetails.releaseDate, moviedetails.overview, moviedetails.comment];
 
     console.log(sql);
 
