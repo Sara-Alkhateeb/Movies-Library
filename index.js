@@ -238,8 +238,8 @@ function updateFavMovie(req, res) {
     const id = req.params.id;
     console.log(id);
     console.log(req.body);
-    const sql = `UPDATE favMovies SET Comment=${req.body.Comment} WHERE id=${id} RETURNING *`;
-    const values = [req.body.Comment];
+    const sql = `UPDATE favMovies SET title=$1 WHERE id=${id} RETURNING *`;
+    const values = [req.body.title];
     client.query(sql, values)
         .then((data) => {
             res.status(200).send("data updated");
