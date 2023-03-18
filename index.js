@@ -204,6 +204,7 @@ function addFavmoviesHandler(req, res) {
 
     client.query(sql, values)
         .then((data) => {
+            const sql =
             res.send("your data was added !");
         })
         .catch((error) => {
@@ -226,7 +227,14 @@ function deleteFavMovie(req, res) {
     const sql = `DELETE FROM favMovies WHERE id=${id}`;
     client.query(sql)
         .then((data) => {
-            res.status(204).json({});
+            const sql = `SELECT * FROM favmovies`;
+            client.query(sql)
+                .then((data) => {
+                    res.send(data.rows);
+                })
+                .catch((err) => {
+                    errorHandler(err, req, res);
+                })
         })
         .catch((err) => {
             errorHandler(err, req, res);
@@ -242,7 +250,14 @@ function updateFavMovie(req, res) {
     // const values = [req.body.comment];
     client.query(sql)
         .then((data) => {
-            res.status(200).send("data updated");
+            const sql = `SELECT * FROM favmovies`;
+            client.query(sql)
+                .then((data) => {
+                    res.send(data.rows);
+                })
+                .catch((err) => {
+                    errorHandler(err, req, res);
+                })
         })
         .catch((err) => {
             errorHandler(err, req, res);
